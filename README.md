@@ -1,5 +1,10 @@
-# Restaurant Management System
-A small and simple restaurant management system (RMS)
+# TruNews
+Get unbiased news witout the twist of media directly from the source. No ads, no tracking. Just the headlines.
+
+The project consists of 3 parts - a backend, a daemon (which does the actual work) and an app.
+Link to daemon: (will be uploaded soon...)
+Link to backend: https://github.com/amsdc/trunews-backend (this project)
+Link to app: (yet to start)
 
 # **⚠️WARNING!⚠️** This project is under development!
 
@@ -38,8 +43,9 @@ A `requirements.txt` file will be soon provided to install dependencies.
 ```
 {
     "user_id": integer: The unique user ID,
-    "username": string: The user name,
+    "email": string: The user email,
     "password": string: The user password,
+    "2fa": bool: If 2FA is on or off. Off by default,
     "user_type": string: The role i.e. "manager" or "customer"
 }
 ```
@@ -51,40 +57,26 @@ A `requirements.txt` file will be soon provided to install dependencies.
 }
 ```
 
-#### Item
+#### TOTP
 ```
 {
-    "item_id": integer: The Item ID,
-    "name": string: name of item,
-    "price": integer: The price of the dish, in Rupees,
+    "secret": string: The TOTP secret,
+    "url": string: The OTP url. Use for QR generation.,
+    "token": string: The 6-digit OTP token
 }
 ```
 
-#### Ordered Item
+#### Provider
 ```
 {
-    "item": 
-        Item representation goes here (nested JSON), 
-    "qty": 2
+    "id": int: Database ID of provider,
+    "name": string,
+    "country": string,
+    "module_name": string (unique)
 }
 ```
 
-#### Ordered items
-```
-{
-    "order_id": integer: The order ID in database,
-    "user": 
-        User Schema,
-    "dine_in": bool,
-    "notes": string: Additional notes,
-    "items_ordered":
-        [
-            Ordered item representation,
-            Ordered item representation … (a list of ordered items schema)
-        ],
-    "total": integer: The total amount
-}
-```
+
 
 ### GET `/api/users/sign_in`
 User sign-in using HTTP Basic Authentication
