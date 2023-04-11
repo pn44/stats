@@ -84,7 +84,7 @@ var main_HTMLPages = {
             login_modal.setAttribute("aria-labelledby", "tn__settingsModal__label");
             login_modal.setAttribute("aria-hidden", "true");
             login_modal.innerHTML = `
-            <div class="modal-dialog modal-dialog-centered modal-xl modal-fullscreen-lg-down">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl modal-fullscreen-lg-down">
             <div class="modal-content" id="tn__settingsModal_content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="tn__settingsModal__label">Settings</h1>
@@ -101,7 +101,28 @@ var main_HTMLPages = {
                             <h5>Homepage Filters</h5>
                         </div>
                         <div class="tab-pane fade" id="tn__settingsModal__pills__account" role="tabpanel" aria-labelledby="tn__settingsModal__pills__tabAccount" tabindex="0">
-                            <h5>Hi</h5>
+                            <h5>Change password</h5>
+                            <form id="tn__settingsModal__pills__account__formChangePWD">
+                            <div class="mb-3">
+                                <label for="tn__settingsModal__pills__account__formChangePWD__pw0" class="form-label">Old password</label>
+                                <input type="password" class="form-control" id="tn__settingsModal__pills__account__formChangePWD__pw0">
+                            </div>
+                            <div class="mb-3">
+                                <label for="tn__settingsModal__pills__account__formChangePWD__pw1" class="form-label">New password</label>
+                                <input type="password" class="form-control" id="tn__settingsModal__pills__account__formChangePWD__pw1">
+                            </div>
+                            <div class="mb-3">
+                                <label for="tn__settingsModal__pills__account__formChangePWD__pw2" class="form-label">Confirm new password</label>
+                                <input type="password" class="form-control" id="tn__settingsModal__pills__account__formChangePWD__pw2">
+                            </div>
+                            <div class="mb-3">
+                                <button type="submit" class="btn btn-primary" id="tn__settingsModal__pills__account__formChangePWD__submitBtn">Change password</button>
+                            </div>
+                            </form>
+                            <h5>Logout</h5>
+                            <a class="btn btn-warning" href="#logout">Logout</a>
+                            <h5>Delete account</h5>
+                            <a class="btn btn-danger" href="#settings/account/delete">Delete my account</a>
                         </div>
                     </div>
                 </div>
