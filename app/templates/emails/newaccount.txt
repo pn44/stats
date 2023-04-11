@@ -1,0 +1,11 @@
+Dear {{ email }},
+
+To confirm your e-mail and register, copy the following token into the system:
+
+{{ token }}
+
+If you have not requested for a new account, simply ignore this message.
+
+Regards,
+
+Trunews
