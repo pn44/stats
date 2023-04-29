@@ -5,16 +5,17 @@ from flask import current_app, request
 from flask import abort, jsonify
 from flask.views import MethodView
 import jwt
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 import onetimepass
 
 from app import mysql
-from app.api.auth import basic_auth, token_auth
+from app.api.auth import basic_auth, token_auth, admin_required
 from app.api.helpers.auth import User
 from app.api.errors.exceptions import InvalidEmailTokenError
-from app.api.helpers.validation import EMAIL_REGEX
+from app.api.helpers.validation import EMAIL_REGEX, VALID_PREFTYPES
 from app.api.helpers.email import send_new_account_email
-from app.api.errors.exceptions import LoginError, TwoFactorCodeMissing
+from app.api.errors.exceptions import LoginError, TwoFactorCodeMissing, \
+    BadSchemaError, PreferenceDoesNotExist
 
 
 NEWACCOUNT_CODE_EXP = 300
@@ -61,8 +62,42 @@ class Login(MethodView):
     #     })
 
 
-class UserLists(MethodView):
+class MeUser(MethodView):
     decorators = [token_auth.login_required]
+    def get(self):
+        user = token_auth.current_user()
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT id, email, is_admin FROM user WHERE id=%s",
+                    (user,))
+        user_tup = cur.fetchone()
+        cur.close()
+        
+        return jsonify({
+                        "id": user_tup[0],
+                        "email": user_tup[1],
+                        "admin": user_tup[2]
+                       })
+    
+    def put(self):
+        user = token_auth.current_user()
+        data = request.get_json()
+        if "password" in data and "opassword" in data:
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT password FROM user WHERE id=%s", (user,))
+            userp = cur.fetchone()
+            if check_password_hash(userp[0], data["opassword"]):
+                cur.execute("UPDATE user SET password=%s WHERE id=%s",
+                            (generate_password_hash(data["password"]), user))
+                mysql.connection.commit()
+                return ""
+            else:
+                raise LoginError("old password does not match")
+        else:
+            raise BadSchemaError
+
+
+class UserLists(MethodView):
+    decorators = [token_auth.login_required, admin_required]
     def get(self):
         cur = mysql.connection.cursor()
         cur.execute("SELECT id, email, is_admin FROM users")
@@ -72,9 +107,39 @@ class UserLists(MethodView):
             ret_list.append({
                                 "id": user_tup[0],
                                 "email": user_tup[1],
-                                "admin": user_tup[2]
+                                "admin": bool(user_tup[2])
                             })
         return jsonify(ret_list)
+
+
+class UserPreferences(MethodView):
+    decorators = [token_auth.login_required]
+    def get(self, key):
+        user = token_auth.current_user()
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT `key`, `value` FROM `preference` WHERE `user`=%s AND `key`=%s LIMIT 1;", (user, key,))
+        ret = cur.fetchone()
+        cur.close()
+        if ret:
+            return jsonify({
+                ret[0]: ret[1]
+            })
+        else:
+            raise PreferenceDoesNotExist
+    
+    def put(self, key):
+        user = token_auth.current_user()
+        value = request.get_json()["value"]
+        typeo = VALID_PREFTYPES.index(value.__class__.__name__)
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT `key`, `value` FROM `preference` WHERE `user`=%s AND `key`=%s LIMIT 1;", (user, key,))
+        if cur.fetchone():
+            raise NotImplemented
+        else:
+            cur.execute("INSERT INTO `preference` (`type`, `key`, `value`, `user`) VALUES (%s, %s, %s, %s);", (typeo, key, value, user))
+            mysql.connection.commit()
+            cur.close()
+            return "", 201
 
 
 class RegistrationGUI(MethodView):

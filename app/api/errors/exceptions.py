@@ -9,6 +9,20 @@ class APIError(Exception):
             self.code = code
 
 
+class PreferenceError(APIError):
+    pass
+
+
+class PreferenceDoesNotExist(PreferenceError):
+    code = 404
+    description = "The preference key does not exist"
+
+
+class BadSchemaError(APIError):
+    code = 400
+    description = "Invalid schema"
+
+
 class AuthError(APIError):
     """Authentication errors"""
     code = 403

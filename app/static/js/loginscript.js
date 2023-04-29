@@ -123,6 +123,7 @@ async function doLogin(e, bsLoginModal) {
         usp.set("expiration", document.getElementById("tn__loginModal__inputExpiration").value)
     }
 
+    try {
     const response = await fetch(APIURL + "/auth/login?" + usp.toString(), {
         method: "GET", // *GET, POST, PUT, DELETE, etc.
         mode: "cors", // no-cors, *cors, same-origin
@@ -133,39 +134,82 @@ async function doLogin(e, bsLoginModal) {
         },
         redirect: "follow", // manual, *follow, error
         referrerPolicy: "no-referrer" // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-    });
-
-    const content = response.json();
-
-    console.log(content);
-
+    })
     if (response.status == 200) {
-        content.then(function (data) {
-            window.localStorage.setItem("token", data["token"])
+        await response.json().then(async function (data) {
+            window.localStorage.setItem("token", data["token"]);
+            await cacheUserData()
         })
         bsLoginModal.hide();
         // bsLoginModal.dispose();
         loadInterface();
     } else {
-        content.then(function (data) {
+        response.json().then(function (data) {
             alertspace.innerHTML = `
             <div class="alert alert-danger" role="alert">
             Error (${data["type"]}): ${data["message"]}
             </div>`
         })
     }
+            
+    } catch (e) {
+        if (e instanceof TypeError) {
+        alertspace.innerHTML = `
+        <div class="alert alert-danger" role="alert">
+        JavaScript Type Error: TYhe server might be down or your firewall is blocking.
+        </div>`
+        } else {
+        alertspace.innerHTML = `
+        <div class="alert alert-danger" role="alert">
+        Sorry, this client is down.
+        <hr>
+        <b>Details</b> ${e}
+        </div>`
+        } 
+    }
+
+    
+}
+
+async function cacheUserData() {
+    console.log("AHOY")
+    const res = await fetch(`${APIURL}/users/me`, {
+        method: "GET", // *GET, POST, PUT, DELETE, etc.
+        mode: "cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Authorization": 'Bearer ' + window.localStorage.getItem("token")
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        // body: JSON.stringify(data), // body data type must match "Content-Type" header
+    })
+    res.json().then((data) => {
+        window.localStorage.setItem("user.id", data.id);
+        window.localStorage.setItem("user.email", data.email);
+        window.localStorage.setItem("user.admin", data.admin);
+    })
+    .catch((error) => {
+        console.log(error)
+    })
+    console.log("YES")
+}
+
+function loadAScript(scr, onl) {
+    var script = document.createElement('script');
+    script.src = 'static/js/' + scr;
+    script.type = 'text/javascript';
+
+    script.onload = onl
+
+    document.getElementsByTagName('head')[0].appendChild(script);
 }
 
 function loadInterface() {
-    var script = document.createElement('script');
-    script.src = '/static/js/mainscript.js';
-    script.type = 'text/javascript';
-
-    // script.onload = function () {
-    //     alert(nImages);
-    // };
-
-    document.getElementsByTagName('head')[0].appendChild(script);
+    loadAScript('common.js', () => {
+        loadAScript('mainscript.js', () => {main_createInterface()})
+    })
 }
 
 window.onload = checkLoginStatus

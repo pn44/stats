@@ -15,17 +15,17 @@ token_auth = HTTPTokenAuth()
 @basic_auth.verify_password
 def verify_password(username, password):
     cur = mysql.connection.cursor()
-    cur.execute("SELECT * FROM user WHERE email=%s", (username,))
+    cur.execute("SELECT id, password FROM user WHERE email=%s", (username,))
     user = cur.fetchone()
     if user:
-        password_hash = user[2]
+        password_hash = user[1]
         if check_password_hash(password_hash, password):
             return User(user[0])
 
 
 @basic_auth.error_handler
 def basic_auth_error(status):
-    raise LoginError("incorrect credentials or 2FA enabled")
+    raise LoginError("incorrect credentials")
 
 
 
