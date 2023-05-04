@@ -143,6 +143,8 @@ async function doLogin(e, bsLoginModal) {
         bsLoginModal.hide();
         // bsLoginModal.dispose();
         loadInterface();
+		document.getElementById("tn__loginModal_formLogin").reset()
+		alertspace.innerHTML = ""
     } else {
         response.json().then(function (data) {
             alertspace.innerHTML = `
@@ -172,7 +174,6 @@ async function doLogin(e, bsLoginModal) {
 }
 
 async function cacheUserData() {
-    console.log("AHOY")
     const res = await fetch(`${APIURL}/users/me`, {
         method: "GET", // *GET, POST, PUT, DELETE, etc.
         mode: "cors", // no-cors, *cors, same-origin
@@ -193,7 +194,6 @@ async function cacheUserData() {
     .catch((error) => {
         console.log(error)
     })
-    console.log("YES")
 }
 
 function loadAScript(scr, onl) {
@@ -208,7 +208,10 @@ function loadAScript(scr, onl) {
 
 function loadInterface() {
     loadAScript('common.js', () => {
-        loadAScript('mainscript.js', () => {main_createInterface()})
+        loadAScript('mainscript.js', async function () {
+			main_createInterface()
+			apply_preferences()
+		})
     })
 }
 

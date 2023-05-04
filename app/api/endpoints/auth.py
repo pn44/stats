@@ -1,5 +1,6 @@
 import re
 import time
+import builtins
 
 from flask import current_app, request
 from flask import abort, jsonify
@@ -117,29 +118,38 @@ class UserPreferences(MethodView):
     def get(self, key):
         user = token_auth.current_user()
         cur = mysql.connection.cursor()
-        cur.execute("SELECT `key`, `value` FROM `preference` WHERE `user`=%s AND `key`=%s LIMIT 1;", (user, key,))
+        cur.execute("SELECT `type`, `value` FROM `preference` WHERE `user`=%s AND `key`=%s LIMIT 1;", (user, key,))
         ret = cur.fetchone()
         cur.close()
         if ret:
-            return jsonify({
-                ret[0]: ret[1]
-            })
+            typef = getattr(builtins, VALID_PREFTYPES[ret[0]])
+            return jsonify(typef(ret[1]))
         else:
             raise PreferenceDoesNotExist
     
     def put(self, key):
         user = token_auth.current_user()
-        value = request.get_json()["value"]
+        value = request.get_json()
         typeo = VALID_PREFTYPES.index(value.__class__.__name__)
         cur = mysql.connection.cursor()
         cur.execute("SELECT `key`, `value` FROM `preference` WHERE `user`=%s AND `key`=%s LIMIT 1;", (user, key,))
         if cur.fetchone():
-            raise NotImplemented
-        else:
-            cur.execute("INSERT INTO `preference` (`type`, `key`, `value`, `user`) VALUES (%s, %s, %s, %s);", (typeo, key, value, user))
+            cur.execute("UPDATE `preference` SET `type`=%s, `value`=%s WHERE `user`=%s AND `key`=%s ;", (typeo, str(value), user, key))
             mysql.connection.commit()
             cur.close()
             return "", 201
+        else:
+            cur.execute("INSERT INTO `preference` (`type`, `key`, `value`, `user`) VALUES (%s, %s, %s, %s);", (typeo, key, str(value), user))
+            mysql.connection.commit()
+            cur.close()
+            return "", 201
+    
+    def delete(self, key):
+        user = token_auth.current_user()
+        cur = mysql.connection.cursor()
+        cur.execute("DELETE FROM `preference` WHERE `user`=%s AND `key`=%s;", (user, key))
+        mysql.connection.commit()
+        return "", 200
 
 
 class RegistrationGUI(MethodView):

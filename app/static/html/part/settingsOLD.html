@@ -1,0 +1,75 @@
+<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl modal-fullscreen-lg-down">
+    <div class="modal-content" id="tn__settingsModal_content">
+        <div class="modal-header">
+            <h1 class="modal-title fs-5" id="tn__settingsModal__label">Settings</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="window.location.hash='#closed'"></button>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <nav id="tn__settingsModal__pills" class="h-100 flex-column align-items-stretch pe-4 border-end">
+                        <nav class="nav nav-pills flex-column">
+                            <a class="nav-link" href="#settings-homepage">Homepage</a>
+                            <nav class="nav nav-pills flex-column">
+                                <a class="nav-link ms-3 my-1" href="#settings-homepage-content">Content</a>
+                            </nav>
+                            <a class="nav-link" href="#settings-account">Account</a>
+                            <nav class="nav nav-pills flex-column">
+                                <a class="nav-link ms-3 my-1" href="#settings-account-logininfo">Login Info</a>
+                                <a class="nav-link ms-3 my-1" href="#settings-account-data">Data</a>
+                            </nav>
+                        </nav>
+                    </nav>
+                </div>
+            
+                <div class="col-md-9">
+                    <div data-bs-spy="scroll" data-bs-target="#tn__settingsModal__pills" data-bs-smooth-scroll="true" tabindex="0" style="height:70vh;overflow: auto;">
+                        <div id="settings-homepage">
+                            <h2>Homepage</h2>
+                        </div>
+                        <div id="settings-homepage-content">
+                            <h3>Content</h3>
+                            <p>Coming Soon!</p>
+                        </div>
+                        <div id="settings-account">
+                            <h2>Account</h2>
+                        </div>
+                        <div id="settings-account-logininfo">
+                            <h3>Login Info</h3>
+                            <h4>Change Password</h4>
+                            <form id="tn__settingsModal__pills__account__formChangePWD" class="needs-validation" novalidate>
+                                <div class="mx-1 mb-3">
+                                    <label for="tn__settingsModal__pills__account__formChangePWD__pw0" class="form-label">Old password</label>
+                                    <input type="password" class="form-control" id="tn__settingsModal__pills__account__formChangePWD__pw0" required>
+                                </div>
+                                <div class="mx-1 mb-3">
+                                    <label for="tn__settingsModal__pills__account__formChangePWD__pw1" class="form-label">New password</label>
+                                    <input type="password" class="form-control" id="tn__settingsModal__pills__account__formChangePWD__pw1" required>
+                                </div>
+                                <div class="mx-1 mb-3">
+                                    <label for="tn__settingsModal__pills__account__formChangePWD__pw2" class="form-label">Confirm new password</label>
+                                    <input type="password" class="form-control" id="tn__settingsModal__pills__account__formChangePWD__pw2" required>
+                                </div>
+                                <div class="mx-1 mb-3">
+                                    <button type="submit" class="btn btn-primary" id="tn__settingsModal__pills__account__formChangePWD__submitBtn">Change password</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div id="settings-account-data">
+                            <h5>Delete your account</h5>
+                            <form id="tn__settingsModal__pills__account__formDelAcc">
+                                <p>Please be certain. There is no going back. No confirmation will be shown and your account will be deleted instantly.</p>
+                                <div class="mb-3">
+                                    <button type="submit" class="btn btn-danger" id="tn__settingsModal__pills__account__formDelAcc__submitBtn">Delete Account</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--<div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>-->
+    </div>
+</div>

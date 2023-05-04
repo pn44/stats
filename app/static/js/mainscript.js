@@ -53,6 +53,12 @@ class p_unfilteredNews{
 };
 
 var Settings = {
+	change_theme: async function () {
+		var th = document.getElementById("tn__settingsModal__pills__appearance__switchForm__theme").value
+		await dump_setting("theme", th)
+		document.documentElement.setAttribute("data-bs-theme", th)
+		create_simple_toast(`The ${th} theme has been applied.`, "success")
+	},
     change_pwd: async function (){
         var pwd_old = document.getElementById("tn__settingsModal__pills__account__formChangePWD__pw0").value;
         var newpw1 = document.getElementById("tn__settingsModal__pills__account__formChangePWD__pw1").value;
@@ -99,14 +105,7 @@ var Settings = {
     }
 }
 
-function main_deleteSession(e=null) {
-    window.localStorage.removeItem("token");
-    window.localStorage.removeItem("user.id");
-    window.localStorage.removeItem("user.email");
-    window.localStorage.removeItem("user.admin");
-    window.location.hash = "";
-    window.location.reload();
-}
+
 
 // namespace
 var main_HTMLPages = {
@@ -151,6 +150,7 @@ var main_HTMLPages = {
         
                 form.classList.add('was-validated')
             }, false);
+			document.getElementById("tn__settingsModal__pills__appearance__switchForm__theme").addEventListener("change", Settings.change_theme);
             const bsSettModal = new bootstrap.Modal(document.getElementById("tn__settingsModal"));
             bsSettModal.show()
             dom_sspy_refresh()
@@ -163,7 +163,7 @@ const hashURLMap = {
     "#": main_HTMLPages.p_unfilteredNews,
     "#home": main_HTMLPages.p_unfilteredNews,
     "#settings": main_HTMLPages.p_settings,
-    "#logout": main_deleteSession,
+    "#logout": deleteSession,
     "#closed": (() => {})
 };
 
@@ -190,6 +190,7 @@ async function main_createInterface() {
 
 async function main_createNavbar() {
     var navbar = document.createElement("nav")
+	navbar.id = "tn__primaryNavbar"
     navbar.classList.add("navbar", "fixed-top", "navbar-expand-lg", "bg-body-tertiary")
     navbar.innerHTML = await render_template("navbar", {email: window.localStorage.getItem("user.email")})
     window.localStorage.getItem("user.email")

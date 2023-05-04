@@ -1,4 +1,42 @@
-loadAScript("jstempl.js")
+// Simple JavaScript Templating
+// John Resig - https://johnresig.com/ - MIT Licensed
+(function(){
+    var cache = {};
+     
+    this.tmpl = function tmpl(str, data){
+      // Figure out if we're getting a template, or if we need to
+      // load the template - and be sure to cache the result.
+      var fn = !/\W/.test(str) ?
+        cache[str] = cache[str] ||
+          tmpl(document.getElementById(str).innerHTML) :
+         
+        // Generate a reusable function that will serve as a template
+        // generator (and which will be cached).
+        new Function("obj",
+          "var p=[],print=function(){p.push.apply(p,arguments);};" +
+           
+          // Introduce the data as local variables using with(){}
+          "with(obj){p.push('" +
+           
+          // Convert the template into pure JavaScript
+          str
+            .replace(/[\r\t\n]/g, " ")
+            .split("<%").join("\t")
+            .replace(/((^|%>)[^\t]*)'/g, "$1\r")
+            .replace(/\t=(.*?)%>/g, "',$1,'")
+            .split("\t").join("');")
+            .split("%>").join("p.push('")
+            .split("\r").join("\\'")
+        + "');}return p.join('');");
+       
+      // Provide some basic currying to the user
+      return data ? fn( data ) : fn;
+    };
+})();
+
+// loadAScript("jstempl.js")
+
+// start common.js
 
 async function get_template_part(name) {
     if (!window.sessionStorage.getItem("c:templPart__" + name)){
@@ -18,11 +56,7 @@ async function render_template(name, obj){
 function dom_sspy_refresh() {
     const dataSpyList = document.querySelectorAll('[data-bs-spy="scroll"]')
     dataSpyList.forEach(dataSpyEl => {
-        if (bootstrap.ScrollSpy.getInstance(dataSpyEl)) {
-            bootstrap.ScrollSpy.getInstance(dataSpyEl).refresh()
-        } else {
-            bootstrap.ScrollSpy(dataSpyEl).refresh()
-        }
+        bootstrap.ScrollSpy.getOrCreateInstance(dataSpyEl).refresh()
     })
 
 }
@@ -67,4 +101,61 @@ async function create_simple_toast(content, color="primary", delay=5000) {
     tc.appendChild(ts)
     const toastBootstrap = bootstrap.Toast.getOrCreateInstance(ts)
     toastBootstrap.show()
+}
+
+async function load_setting(key) {
+	const res = await fetch(`${APIURL}/users/me/preferences/${key}`, {
+		method: "GET", // *GET, POST, PUT, DELETE, etc.
+		cache: "no-cache",
+		headers: {
+		  "Authorization": 'Bearer ' + window.localStorage.getItem("token")
+		},
+	})
+	
+	if (res.status == 200) {
+		const dat = await res.json()
+		return dat
+	} else {
+		return null
+	}
+}
+
+async function dump_setting(key, value) {
+	const res = await fetch(`${APIURL}/users/me/preferences/${key}`, {
+		method: "PUT", // *GET, POST, PUT, DELETE, etc.
+		cache: "no-cache",
+		headers: {
+		  "Authorization": 'Bearer ' + window.localStorage.getItem("token"),
+		  "Content-Type": "application/json"
+		},
+		body: JSON.stringify(
+			value
+		)
+	})
+}
+
+async function apply_preferences() {
+	// theme
+	var theme = await load_setting("theme")
+	if (!theme) { theme="light" }
+	document.documentElement.setAttribute("data-bs-theme", theme)
+}
+
+function deleteSession(e=null) {
+    window.localStorage.removeItem("token");
+    window.localStorage.removeItem("user.id");
+    window.localStorage.removeItem("user.email");
+    window.localStorage.removeItem("user.admin");
+    window.location.hash = "";
+	document.getElementById("tn__primaryNavbar").remove();
+	document.getElementById("tn__maincontent").innerHTML = "";
+	document.getElementById("title").innerHTML = "";
+	document.title = "Log in";
+    window.location.reload();
+	// if (document.getElementById("tn__loginModal")) {
+		// bootstrap.Modal.getOrCreateInstance(document.getElementById("tn__loginModal")).show();
+	// }
+	// else {
+		// window.location.reload();
+	// }
 }

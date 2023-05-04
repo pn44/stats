@@ -9,7 +9,11 @@ NO_PER_PAGE = 50
 def no_pages(table, per_page=NO_PER_PAGE):
     cur = mysql.connection.cursor()
     cur.execute(QUERY_NBPAGES.format(table))
-    return math.ceil((cur.fetchone()[0])/per_page)
+    no = cur.fetchone()[0]
+    if no:
+        return math.ceil((no)/per_page)
+    else:
+        return 1
 
 
 def safe_name(name):
