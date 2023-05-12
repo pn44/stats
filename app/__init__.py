@@ -42,4 +42,13 @@ def create_app(config_class=Config):
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
     
+    @app.after_request
+    def apply_headers(response):
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        if "Access-Control-Request-Headers" in request.headers:
+            response.headers["Access-Control-Allow-Headers"] = \
+                request.headers["Access-Control-Request-Headers"]
+        
+        return response
+    
     return app

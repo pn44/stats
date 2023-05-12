@@ -9,34 +9,19 @@ CREATE TABLE `user` (
     `is_admin` BOOL NOT NULL DEFAULT FALSE
 );
 
-CREATE TABLE `provider` (
+-- displaylevels
+-- 0: show nothing
+-- 1: show views
+-- 2: + likes
+-- 3: + dislikes
+-- 4: + comments
+CREATE TABLE `page` (
     `id` INT PRIMARY KEY AUTO_INCREMENT, 
-    `name` VARCHAR(50) NOT NULL, 
-    `country` CHAR(2), 
-    `module_name` VARCHAR(255) NOT NULL UNIQUE
-);
-
-CREATE TABLE `category` (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `name` VARCHAR(50) NOT NULL,
-    `uid` VARCHAR(70) NOT NULL UNIQUE,
-    `rating` INT,
-    CONSTRAINT `CK_rating` CHECK (0 <= `rating` <=3)
-);
-
-CREATE TABLE `article` (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `title` VARCHAR(300),
-    `date_time` TIMESTAMP,
-    `link` VARCHAR(400),
-    `description` TEXT,
-    `creator` VARCHAR(50),
-    `uid` VARCHAR(20) NOT NULL UNIQUE,
-    `category` INT,
-    `imageurl` VARCHAR(255),
-    `provider` INT,
-    CONSTRAINT FK_ArticleProvider FOREIGN KEY (`provider`) 
-    REFERENCES `provider`(`id`) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT FK_ArticleCategory FOREIGN KEY (`category`) 
-    REFERENCES `category`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
+    `slug` VARCHAR(50) UNIQUE, 
+    `name` VARCHAR(100),
+	`views` INT DEFAULT 0,
+	`likes` INT DEFAULT 0,
+	`dislikes` INT DEFAULT 0,
+	`displaylevel` INT DEFAULT 4,
+	CHECK (0 <= `displaylevel` <= 4)
 );
