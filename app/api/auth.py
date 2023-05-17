@@ -15,7 +15,7 @@ token_auth = HTTPTokenAuth()
 @basic_auth.verify_password
 def verify_password(username, password):
     cur = mysql.connection.cursor()
-    cur.execute("SELECT id, password FROM user WHERE email=%s", (username,))
+    cur.execute("SELECT `id`, `password` FROM `user` WHERE email=%s", (username,))
     user = cur.fetchone()
     if user:
         password_hash = user[1]

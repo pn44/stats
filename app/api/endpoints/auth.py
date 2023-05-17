@@ -68,7 +68,7 @@ class MeUser(MethodView):
     def get(self):
         user = token_auth.current_user()
         cur = mysql.connection.cursor()
-        cur.execute("SELECT id, email, is_admin FROM user WHERE id=%s",
+        cur.execute("SELECT `id`, `email`, `is_admin` FROM `user` WHERE `id`=%s",
                     (user,))
         user_tup = cur.fetchone()
         cur.close()
@@ -84,10 +84,10 @@ class MeUser(MethodView):
         data = request.get_json()
         if "password" in data and "opassword" in data:
             cur = mysql.connection.cursor()
-            cur.execute("SELECT password FROM user WHERE id=%s", (user,))
+            cur.execute("SELECT `password` FROM `user` WHERE `id`=%s", (user,))
             userp = cur.fetchone()
             if check_password_hash(userp[0], data["opassword"]):
-                cur.execute("UPDATE user SET password=%s WHERE id=%s",
+                cur.execute("UPDATE `user` SET `password`=%s WHERE `id`=%s",
                             (generate_password_hash(data["password"]), user))
                 mysql.connection.commit()
                 return ""
