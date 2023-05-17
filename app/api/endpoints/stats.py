@@ -17,7 +17,7 @@ from app.api.helpers.pagination import NO_PER_PAGE, no_pages, safe_name, \
 class UpdatePageViews(MethodView):
     def get(self):
         cur = mysql.connection.cursor()
-        cur.execute("SELECT `views`, `likes`, `dislikes` FROM `page` WHERE `id` = %s", (request.args["pageid"]))
+        cur.execute("SELECT `views`, `likes`, `dislikes` FROM `page` WHERE `id` = %s", (request.args["pageid"],))
         data = cur.fetchone()
         return jsonify({
             "views": data[0],
